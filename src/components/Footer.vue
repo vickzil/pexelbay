@@ -23,7 +23,7 @@
       <p>Copyright &copy; {{getCurrentYear}}</p>
       <p>
         Designed By
-        <a href="victornwakwue.online" target="_blank">Victor Nwakwue</a>
+        <a :href="url" target="_blank">Victor Nwakwue</a>
       </p>
     </div>
   </footer>
@@ -36,6 +36,11 @@ export default {
       let date = new Date();
       return date.getFullYear();
     }
+  },
+  data() {
+    return {
+      url: "victornwakwue.online"
+    };
   }
 };
 </script>

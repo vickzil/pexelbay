@@ -43,7 +43,7 @@
             <h3>Team</h3>
             <p>
               Pexelbay is run by
-              <a href="victornwakwue.online">Victor Nwakwue</a>. The photo and data source id from
+              <a href="https://victornwakwue.online">Victor Nwakwue</a>. The photo and data source id from
               <a href="https://pixabay.com/api/">Pixabay Api</a> .
             </p>
           </div>
@@ -65,7 +65,7 @@
             <p>
               Get your own website with full functionalities at a cheaper rate. contact
               <a
-                href="victornwakue.online"
+                href="https://victornwakue.online"
               >Victor Nwakwue</a>
               Now.
             </p>
