@@ -34,10 +34,9 @@ export default {
   },
   data() {
     return {
-      currentPage: 1,
+      currentPage: 2,
       isBussy: false,
-      maxPerpage: 43,
-      totalResult: 300
+      maxPerpage: 30
     };
   },
   props: ["id"],
@@ -49,11 +48,13 @@ export default {
     APIKEY() {
       return this.$store.getters.APIKEY;
     },
-
-    pageCount() {
-      return Math.ceil(this.totalResult / this.maxPerpage);
+    categoryTotalHits() {
+      return this.$store.state.categoryTotalHits;
     },
 
+    pageCount() {
+      return Math.ceil(this.categoryTotalHits / this.maxPerpage);
+    },
     pageOffset() {
       return this.maxPerpage * this.currentPage;
     }
@@ -68,11 +69,10 @@ export default {
             this.currentPage < this.pageCount
           ) {
             this.isBussy = true;
+            this.currentPage += 1;
+            this.fetchMoreImages();
 
-            setTimeout(() => {
-              this.currentPage += 1;
-              this.fetchMoreImages();
-            }, 1500);
+            setTimeout(() => {}, 1500);
           }
         });
       });
@@ -80,27 +80,30 @@ export default {
       observer.observe(this.$refs.infinitescrolltrigger);
     },
 
-    fetchMoreImages() {
+    checkResultTotalHits: function() {
+      if (this.images.length < this.categoryTotalHits) {
+        return this.scrollTrigger();
+      }
+    },
+
+    fetchMoreImages: async function() {
       let imageUrl =
         "https://pixabay.com/api/?key=" +
         this.APIKEY +
+        "&q=" +
+        this.id +
         "&image_type=photo&per_page=" +
         this.maxPerpage +
         "&page=" +
         this.currentPage;
-
-      fetch(imageUrl)
-        .then(res => res.json())
-        .then(res => {
-          res.hits.map(photos => {
-            this.$store.state.categoryImage.push(photos);
-          });
-          this.isBussy = false;
-        })
-        .catch(err => console.log(err));
+      let res = await fetch(imageUrl);
+      let photos = await res.json();
+      this.$store.dispatch("getMoreCategoryPhotos", photos.hits);
+      this.isBussy = false;
     },
     getCategoryImage() {
       this.$store.dispatch("getCategoryImage", this.id);
+      this.checkResultTotalHits();
     },
     closeNavigationMenu: function() {
       this.$store.dispatch("closeNavigationMenu");
@@ -111,9 +114,7 @@ export default {
     showPageLoading: function() {
       this.$store.dispatch("showPageLoading");
     },
-    getPhotos: function() {
-      this.$store.dispatch("getPhotos");
-    },
+
     closePageLoading: function() {
       setTimeout(() => {
         this.$store.dispatch("closePageLoading");
@@ -132,4 +133,8 @@ export default {
 };
 </script>
 
-<style></style>
+<style scoped>
+.scroll-trigger {
+  height: 370px;
+}
+</style>

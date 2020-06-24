@@ -28,6 +28,8 @@ export default {
   search: [],
   searcInput: "",
   searchName: null,
+  searcTotalHits: 100,
+  categoryTotalHits: 100,
   searchPage: false,
   singleImage: null,
   showNavMenu: false,
@@ -35,6 +37,10 @@ export default {
   pageloading: true,
   API_KEY: "16484065-548c12b26d972495577e2a544",
   like: false,
-  likedNumber: 0
+  likedNumber: 0,
+  photoCurrentPage: 2,
+  searchCurrentPage: 2,
+  categoryCurrentPage: 2,
+  photoTotalHits: 100,
 
 };

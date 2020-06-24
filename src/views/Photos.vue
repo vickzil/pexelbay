@@ -38,7 +38,7 @@ export default {
   },
   data() {
     return {
-      currentPage: 1,
+      currentPage: 2,
       isBussy: false,
       maxPerpage: 30,
       totalResult: 300
@@ -47,6 +47,18 @@ export default {
   computed: {
     images() {
       return this.$store.state.photos;
+    },
+
+    photoCurrentPage: {
+      get() {
+        return this.$store.state.photoCurrentPage;
+      },
+      set(value) {
+        return (this.$store.state.photoCurrentPage = value);
+      }
+    },
+    photoTotalHits() {
+      return this.$store.state.photoTotalHits;
     },
 
     pageLoading() {
@@ -58,11 +70,11 @@ export default {
     },
 
     pageCount() {
-      return Math.ceil(this.totalResult / this.maxPerpage);
+      return Math.ceil(this.photoTotalHits / this.maxPerpage);
     },
 
     pageOffset() {
-      return this.maxPerpage * this.currentPage;
+      return this.maxPerpage * this.photoCurrentPage;
     }
   },
 
@@ -75,7 +87,7 @@ export default {
             this.currentPage < this.pageCount
           ) {
             this.isBussy = true;
-            this.currentPage += 1;
+            this.photoCurrentPage += 1;
             this.fetchMoreImages();
 
             setTimeout(() => {}, 1500);
@@ -88,6 +100,9 @@ export default {
 
     closeNavigationMenu: function() {
       this.$store.dispatch("closeNavigationMenu");
+      setTimeout(() => {
+        this.checkResultTotalHits();
+      }, 3000);
     },
 
     closeInputSearch: function() {
@@ -108,7 +123,13 @@ export default {
       if (this.$store.state.photos.length > 0) {
         this.closePageLoading();
       } else {
-        this.fetchMoreImages();
+        this.$store.dispatch("getPhotos");
+      }
+    },
+
+    checkResultTotalHits: function() {
+      if (this.images.length < this.photoTotalHits) {
+        return this.scrollTrigger();
       }
     },
 
@@ -119,12 +140,13 @@ export default {
         "&image_type=photo&per_page=" +
         this.maxPerpage +
         "&page=" +
-        this.currentPage;
+        this.photoCurrentPage;
       let res = await fetch(imageUrl);
       let photos = await res.json();
+      this.$store.state.photoTotalHits = photos.totalHits;
       this.$store.dispatch("getMorePhotos", photos.hits);
+
       this.isBussy = false;
-      this.closePageLoading();
     }
   },
   beforeRouteLeave(to, from, next) {
@@ -132,10 +154,9 @@ export default {
     next();
   },
   mounted() {
-    this.fetchMoreImages();
     this.closeNavigationMenu();
     this.closeInputSearch();
-    this.scrollTrigger();
+    this.getPhotos();
   }
 };
 </script>

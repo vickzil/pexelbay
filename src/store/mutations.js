@@ -9,7 +9,8 @@ export const GET_IMAGES = (state, image) => {
 };
 // SAVE PHOTOS PAGE IMAGES
 export const GET_PHOTOS = (state, image) => {
-    state.photos = image;
+    state.photos = image.hits;
+    state.photoTotalHits = image.totalHits;
     if (state.photos.length > 0) {
         setTimeout(() => {
             state.pageloading = false;
@@ -20,6 +21,12 @@ export const GET_PHOTOS = (state, image) => {
 // PUSH MORE PHOTOS
 export const GET_MORE_PHOTOS = (state, images) => {
     state.photos = [...state.photos, ...images];
+};
+
+
+// PUSH MORE PHOTOS
+export const GET_MORE_SEARCH_PHOTOS = (state, images) => {
+    state.search = [...state.search, ...images];
 };
 
 // PUSH ILLUSTRATION IMAGES
@@ -64,9 +71,16 @@ export const GET_RELATED_IMAGES = (state, image) => {
     state.randomImages = image;
 };
 
+// SAVE RELATED IMAGES
+export const GET_MORE_CATEGORY_PHOTOS = (state, image) => {
+    state.categoryImage = [...state.categoryImage, ...image];
+
+};
+
 // SAVE CATEGORY IMAGES
 export const GET_CATEGORY_IMAGES_ALL = (state, image) => {
-    state.categoryImage = image;
+    state.categoryImage = image.hits;
+    state.categoryTotalHits = image.totalHits;
     if (image) {
         setTimeout(() => {
             state.pageloading = false;
@@ -76,7 +90,8 @@ export const GET_CATEGORY_IMAGES_ALL = (state, image) => {
 
 // SAVE SEARCH RESULTS
 export const SEARCH_IMAGES = (state, image) => {
-    state.search = image;
+    state.search = image.hits;
+    state.searcTotalHits = image.totalHits;
     state.searcInput = ""
     if (image) {
         setTimeout(() => {

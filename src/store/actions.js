@@ -42,10 +42,18 @@ export const getImages = ({
 // ACTION GET ALL PHOTO PAGE IMAGES 
 export const getPhotos = ({
     commit
-}, currentpage) => {
-    let imageUrl = "https://pixabay.com/api/?key=" + APIKEY + "&q=" + shuffledWords + "&image_type=photo&per_page=47&page=" + currentpage;
+}) => {
+    let maxPerpage = 30;
+    let currentPage = 1;
+    let imageUrl =
+        "https://pixabay.com/api/?key=" +
+        APIKEY +
+        "&image_type=photo&per_page=" +
+        maxPerpage +
+        "&page=" +
+        currentPage;
     axios.get(imageUrl).then(response => {
-        commit("GET_PHOTOS", response.data.hits);
+        commit("GET_PHOTOS", response.data);
     }).catch(err => console.log(err));
 };
 
@@ -120,7 +128,8 @@ export const searchImages = ({
     let imageUrl = "https://pixabay.com/api/?key=" + APIKEY + "&q=" + image + "&image_type=photo&per_page=47";
 
     axios.get(imageUrl).then(response => {
-        commit("SEARCH_IMAGES", response.data.hits);
+
+        commit("SEARCH_IMAGES", response.data);
     }).catch(err => console.log(err));
 };
 
@@ -132,7 +141,7 @@ export const getCategoryImage = ({
     let imageUrl = "https://pixabay.com/api/?key=" + APIKEY + "&q=" + image + "&image_type=photo&per_page=47";
 
     axios.get(imageUrl).then(response => {
-        commit("GET_CATEGORY_IMAGES_ALL", response.data.hits);
+        commit("GET_CATEGORY_IMAGES_ALL", response.data);
     }).catch(err => console.log(err));
 };
 
@@ -372,6 +381,22 @@ export const getMorePhotos = ({
     commit
 }, image) => {
     commit("GET_MORE_PHOTOS", image);
+};
+
+
+// GET MORE PHOTOS
+export const getMoreCategoryPhotos = ({
+    commit
+}, image) => {
+    commit("GET_MORE_CATEGORY_PHOTOS", image);
+};
+
+
+// GET MORE PHOTOS
+export const getMoreSearchPhotos = ({
+    commit
+}, image) => {
+    commit("GET_MORE_SEARCH_PHOTOS", image);
 };
 
 // CLOSE NAVIGATION MENU

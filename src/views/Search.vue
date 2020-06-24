@@ -11,7 +11,17 @@
                 <span v-if="getSearchName">({{getSearchName}})</span>
               </h3>
             </div>
-            <ImageContainer :images="images" />
+            <div class="image_container">
+              <ImageCard v-for="image in images" :key="image.id" :image="image" />
+            </div>
+            <div ref="infinitescrolltrigger" class="scroll-trigger">
+              <span
+                class="spinner-grow spinner-grow-md"
+                role="status"
+                v-if="isBussy"
+                aria-hidden="true"
+              ></span>
+            </div>
           </div>
           <NoResult v-else />
         </div>
@@ -21,14 +31,21 @@
 </template>
 
 <script>
-import ImageContainer from "../components/ImageContainer";
+import ImageCard from "../components/ImageCard";
 import NoResult from "../components/NoResult";
 
 export default {
   name: "Photos",
   components: {
-    ImageContainer,
+    ImageCard,
     NoResult
+  },
+  data() {
+    return {
+      currentPage: 2,
+      isBussy: false,
+      maxPerpage: 30
+    };
   },
   computed: {
     images() {
@@ -41,6 +58,20 @@ export default {
 
     getSearchPageStatus() {
       return this.$store.state.searchPage;
+    },
+    searcTotalHits() {
+      return this.$store.state.searcTotalHits;
+    },
+    APIKEY() {
+      return this.$store.getters.APIKEY;
+    },
+
+    pageCount() {
+      return Math.ceil(this.searcTotalHits / this.maxPerpage);
+    },
+
+    pageOffset() {
+      return this.maxPerpage * this.currentPage;
     }
   },
 
@@ -57,6 +88,24 @@ export default {
   },
 
   methods: {
+    scrollTrigger: function() {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (
+            entry.intersectionRatio > 0 &&
+            this.currentPage < this.pageCount
+          ) {
+            this.isBussy = true;
+            this.currentPage += 1;
+            this.fetchMoreImages();
+
+            setTimeout(() => {}, 1500);
+          }
+        });
+      });
+
+      observer.observe(this.$refs.infinitescrolltrigger);
+    },
     closeNavigationMenu: function() {
       this.$store.dispatch("closeNavigationMenu");
     },
@@ -72,7 +121,35 @@ export default {
     closePageLoading: function() {
       setTimeout(() => {
         this.$store.dispatch("closePageLoading");
+        this.checkResultTotalHits();
       }, 4000);
+    },
+    checkResultTotalHits: function() {
+      if (this.images.length < this.searcTotalHits) {
+        return this.scrollTrigger();
+      }
+    },
+    fetchMoreImages: async function() {
+      let imageUrl =
+        "https://pixabay.com/api/?key=" +
+        this.APIKEY +
+        "&q=" +
+        this.getSearchName +
+        "&image_type=photo&per_page=" +
+        this.maxPerpage +
+        "&page=" +
+        this.currentPage;
+      let res = await fetch(imageUrl);
+      let photos = await res.json();
+      this.$store.dispatch("getMoreSearchPhotos", photos.hits);
+      this.isBussy = false;
+    },
+    getSeatchPafeStatus: function() {
+      if (this.getSearchPageStatus == true) {
+        this.closePageLoading();
+        this.closeNavigationMenu();
+        this.closeInputSearch();
+      }
     }
   },
 
@@ -82,11 +159,19 @@ export default {
   },
 
   mounted() {
-    this.closePageLoading();
-    this.closeNavigationMenu();
-    this.closeInputSearch();
+    this.getSeatchPafeStatus();
   }
+  // watch: {
+  //   "$route.params.id": function(id) {
+  //     id;
+  //     this.scrollBehavior();
+  //   }
+  // }
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.scroll-trigger {
+  height: 270px;
+}
+</style>
